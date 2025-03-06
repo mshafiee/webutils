@@ -3,41 +3,27 @@
 <head>
     <title>تحلیل ابجد حروف</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Mobile-friendly viewport -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400..700&family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Vazirmatn', sans-serif; /* Apply Vazirmatn font to body */
+            font-family: 'Vazirmatn', sans-serif;
             direction: rtl;
             line-height: 1.8;
-            margin: 20px;
+            margin: 15px; /* Reduced margin for mobile */
             background-color: #f4f4f4;
             color: #333;
-        }
-
-        /* Restrict width on larger screens using media query */
-        @media (min-width: 768px) {
-            body {
-                max-width: 800px;
-                margin-left: auto;
-                margin-right: auto;
-                padding-left: 20px;
-                padding-right: 20px;
-            }
-
-            .lang-selector-container {
-                right: auto; /* Reset right position */
-                left: 10px;   /* Move to top-left on larger screens */
-            }
+            font-size: 16px; /* Base font size for mobile */
         }
 
         h1 {
             text-align: center;
             color: #007bff;
             margin-bottom: 20px;
-            font-family: 'Noto Naskh Arabic', serif; /* Apply Noto Naskh Arabic to H1 */
-            font-weight: 700; /* Make H1 bold for Noto Naskh Arabic */
+            font-family: 'Noto Naskh Arabic', serif;
+            font-weight: 700;
         }
 
         label {
@@ -52,28 +38,27 @@
             margin-bottom: 20px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            text-align: right; /* Default to right for Persian/Arabic, JS will change if needed */
+            text-align: right;
             box-sizing: border-box;
-            font-family: 'Vazirmatn', sans-serif; /* Apply Vazirmatn font to input box */
+            font-family: 'Vazirmatn', sans-serif;
         }
 
         .ltr-input {
-            text-align: left; /* Class for LTR input text alignment */
+            text-align: left;
         }
 
-
         button {
-            padding: 10px 20px;
+            padding: 12px 24px; /* Slightly larger button for touch */
             background-color: #007bff;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 1.1em; /* Slightly larger button text */
             display: block;
             margin: 0 auto 20px auto;
             max-width: 300px;
-            font-family: 'Vazirmatn', sans-serif; /* Ensure button font matches body */
+            font-family: 'Vazirmatn', sans-serif;
         }
 
         button:hover {
@@ -82,11 +67,11 @@
 
         #output {
             background-color: white;
-            padding: 20px;
+            padding: 15px; /* Reduced padding for mobile */
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            display: none; /* Initially hidden */
-            margin-top: 20px; /* Add some top margin when visible */
+            display: none;
+            margin-top: 20px;
         }
 
         .section-title {
@@ -94,8 +79,8 @@
             border-bottom: 2px solid #eee;
             padding-bottom: 5px;
             margin-bottom: 10px;
-            font-family: 'Noto Naskh Arabic', serif; /* Apply Noto Naskh Arabic to section titles */
-            font-weight: 500; /* Adjust font weight for section titles */
+            font-family: 'Noto Naskh Arabic', serif;
+            font-weight: 500;
         }
 
         .letter-abjad, .planet-element, .dominant-result {
@@ -104,11 +89,13 @@
 
         .letter-pair {
             display: inline-block;
-            margin-left: 10px;
+            margin-left: 5px; /* Reduced left margin for mobile */
+            margin-bottom: 5px; /* Added bottom margin for mobile wrapping */
             padding: 5px;
             border: 1px solid #eee;
             border-radius: 3px;
             background-color: #f9f9f9;
+            font-size: 0.9em; /* Slightly smaller font for letter pairs on mobile */
         }
 
         .abjad-values {
@@ -121,24 +108,26 @@
 
         .quality-pair {
             display: inline-block;
-            margin-left: 10px;
+            margin-left: 5px; /* Reduced left margin for mobile */
+            margin-bottom: 5px; /* Added bottom margin for mobile wrapping */
             padding: 5px;
             background-color: #f9f9f9;
             border-radius: 3px;
+            font-size: 0.9em; /* Slightly smaller font for quality pairs on mobile */
         }
 
         .dominant-element-text {
             font-weight: bold;
-            color: #28a745; /* Green to highlight success or dominant aspect */
+            color: #28a745;
         }
 
         footer {
             text-align: center;
-            padding: 20px 0;
-            margin-top: 30px;
+            padding: 15px 0; /* Reduced padding for mobile */
+            margin-top: 20px; /* Reduced margin for mobile */
             border-top: 1px solid #eee;
             color: #777;
-            font-size: 0.9em;
+            font-size: 0.85em; /* Slightly smaller footer font on mobile */
         }
 
         /* Language Selector Styling */
@@ -146,7 +135,7 @@
             position: fixed;
             top: 10px;
             right: 10px;
-            z-index: 100; /* Ensure it's on top */
+            z-index: 100;
         }
 
         .lang-selector {
@@ -157,20 +146,65 @@
             color: #333;
             cursor: pointer;
             font-size: 0.9em;
-            appearance: none; /* Remove default appearance for better styling */
-            -webkit-appearance: none; /* For Safari */
-            -moz-appearance: none; /* For Firefox */
-            background-image: url('data:image/svg+xml;utf8,<svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); /* Add dropdown arrow icon */
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
             background-repeat: no-repeat;
             background-position-x: right;
             background-position-y: center;
-            padding-right: 25px; /* Space for arrow */
+            padding-right: 25px;
         }
 
         .lang-selector:focus {
             outline: none;
             border-color: #007bff;
             box-shadow: 0 0 0 2px rgba(0,123,255,.25);
+        }
+
+        /* Media query for larger screens (tablets and desktops) */
+        @media (min-width: 768px) {
+            body {
+                max-width: 800px;
+                margin-left: auto;
+                margin-right: auto;
+                margin-top: 20px;
+                margin-bottom: 20px;
+                padding-left: 20px;
+                padding-right: 20px;
+                font-size: 18px; /* Larger font size for desktop */
+            }
+
+            h1 {
+                font-size: 2.5em; /* Larger heading for desktop */
+            }
+
+            button {
+                font-size: 1.2em; /* Slightly larger button text for desktop */
+            }
+
+            #output {
+                padding: 20px; /* Larger padding for desktop output */
+            }
+
+
+            .letter-pair, .quality-pair {
+                margin-left: 10px; /* Restore larger left margin for desktop */
+                margin-bottom: 0; /* Remove bottom margin on desktop */
+                font-size: 1em; /* Restore normal font size for desktop */
+            }
+
+
+            .lang-selector-container {
+                right: auto;
+                left: 10px;
+            }
+
+            footer {
+                font-size: 0.9em; /* Restore normal footer font on desktop */
+                padding: 20px 0; /* Restore normal footer padding on desktop */
+                margin-top: 30px; /* Restore normal footer margin on desktop */
+            }
         }
     </style>
 </head>
@@ -195,8 +229,8 @@
 </footer>
 
 <script>
-    const lang = document.querySelector('html').lang; // get default lang from html tag.
-    let currentLanguage = lang; // default language
+    const lang = document.querySelector('html').lang;
+    let currentLanguage = lang;
 
     const translations = {
         en: {
@@ -468,25 +502,23 @@
 
 
     function MajorAbjad(s) {
-        let majorAbjad = 0;
-        s = s.toLowerCase(); // Convert input to lowercase for English letters
-        for (let char of s) {
-            if (Letters[char]) {
-                majorAbjad += Letters[char].MajorAbjad;
-            }
+        if (!s) {
+            return 0;
         }
-        return majorAbjad;
+        const char = s[0].toLowerCase();
+        const restOfString = s.slice(1);
+        const currentValue = Letters[char] ? Letters[char].MajorAbjad : 0;
+        return currentValue + MajorAbjad(restOfString);
     }
 
     function MinorAbjad(s) {
-        let minorAbjad = 0;
-        s = s.toLowerCase(); // Convert input to lowercase for English letters
-        for (let char of s) {
-            if (Letters[char]) {
-                minorAbjad += Letters[char].MinorAbjad;
-            }
+        if (!s) {
+            return 0;
         }
-        return minorAbjad;
+        const char = s[0].toLowerCase();
+        const restOfString = s.slice(1);
+        const currentValue = Letters[char] ? Letters[char].MinorAbjad : 0;
+        return currentValue + MinorAbjad(restOfString);
     }
 
     function ZodiacSign(tale, language) {
@@ -506,19 +538,21 @@
         return 8 - planetIndex;
     }
 
-    function WordElements(w) {
-        const wordElements = {};
-        w = w.toLowerCase(); // Convert input to lowercase for English letters
-        for (let char of w) {
-            if (Letters[char]) {
-                const element = Letters[char].Element;
-                const planet = Letters[char].Planet;
-                const factor = PlanetFactor(planet);
-                wordElements[element] = (wordElements[element] || 0) + factor;
-            }
+    function WordElements(w, index = 0, currentWordElements = {}) {
+        if (index >= w.length) {
+            return currentWordElements;
         }
-        return wordElements;
+        const char = w[index].toLowerCase();
+        let updatedWordElements = {...currentWordElements};
+        if (Letters[char]) {
+            const element = Letters[char].Element;
+            const planet = Letters[char].Planet;
+            const factor = PlanetFactor(planet);
+            updatedWordElements[element] = (updatedWordElements[element] || 0) + factor;
+        }
+        return WordElements(w, index + 1, updatedWordElements);
     }
+
 
     function SearchQuality(a, q) {
         return a.includes(q);
@@ -594,6 +628,33 @@
         };
     }
 
+    function generateLetterAbjadHTML(name, index = 0, html = '') {
+        if (index >= name.length) {
+            return html;
+        }
+        const char = name[index];
+        let currentHTML = html;
+        if (Letters[char]) {
+            currentHTML += `<span class="letter-pair"><span>${char}</span>=<span style="font-weight:bold;">${Letters[char].MajorAbjad}</span></span>`;
+        }
+        return generateLetterAbjadHTML(name, index + 1, currentHTML);
+    }
+
+    function generatePlanetElementHTML(name, language, index = 0, html = '') {
+        if (index >= name.length) {
+            return html;
+        }
+        const char = name[index];
+        let currentHTML = html;
+        const localizedPlanets = getLocalizedPlanets(language);
+        const localizedElements = getLocalizedElements(language);
+        if (Letters[char]) {
+            currentHTML += `<span class="letter-pair"><span>${char}</span>=[<span style="color: #007bff;">${localizedPlanets[Letters[char].Planet]}</span>(<span style="font-weight:bold;">${PlanetFactor(Letters[char].Planet)}</span>)-<span style="color: #dc3545;">${localizedElements[Letters[char].Element]}</span>]</span>`;
+        }
+        return generatePlanetElementHTML(name, language, index + 1, currentHTML);
+    }
+
+
     function NameAnalysis(name, language) {
         name = name.replace(/\s/g, '');
         let outputHTML = '';
@@ -604,11 +665,7 @@
         outputHTML += '<div class="letter-abjad">';
         outputHTML += `<h3 class="section-title">${translations[language].outputSections.abjadValues}</h3>`;
         outputHTML += '<div class="letter-values">';
-        for (let char of name) {
-            if (Letters[char]) {
-                outputHTML += `<span class="letter-pair"><span>${char}</span>=<span style="font-weight:bold;">${Letters[char].MajorAbjad}</span></span>`;
-            }
-        }
+        outputHTML += generateLetterAbjadHTML(name);
         outputHTML += '</div>';
         const majorAbjadValue = MajorAbjad(name);
         const minorAbjadValue = MinorAbjad(name);
@@ -623,11 +680,7 @@
         outputHTML += '<div class="planet-element">';
         outputHTML += `<h3 class="section-title">${translations[language].outputSections.planetElement}</h3>`;
         outputHTML += '<div class="planet-element-pairs">';
-        for (let char of name) {
-            if (Letters[char]) {
-                outputHTML += `<span class="letter-pair"><span>${char}</span>=[<span style="color: #007bff;">${localizedPlanets[Letters[char].Planet]}</span>(<span style="font-weight:bold;">${PlanetFactor(Letters[char].Planet)}</span>)-<span style="color: #dc3545;">${localizedElements[Letters[char].Element]}</span>]</span>`;
-            }
-        }
+        outputHTML += generatePlanetElementHTML(name, language);
         outputHTML += '</div>';
         outputHTML += '</div>';
 
@@ -649,17 +702,17 @@
         const name = document.getElementById("nameInput").value;
         if (!name) {
             document.getElementById("output").innerHTML = translations[currentLanguage].inputEmptyError;
-            document.getElementById("output").style.display = 'none'; // Hide output if no name
+            document.getElementById("output").style.display = 'none';
             return;
         }
         const analysisResult = NameAnalysis(name, currentLanguage);
         document.getElementById("output").innerHTML = analysisResult;
-        document.getElementById("output").style.display = 'block'; // Show output after analysis
+        document.getElementById("output").style.display = 'block';
     }
 
     document.getElementById("nameInput").addEventListener("keydown", function(event) {
         if (event.key === "Enter") {
-            event.preventDefault(); // Prevent form submission if inside a form
+            event.preventDefault();
             analyzeName();
         }
     });
@@ -668,7 +721,7 @@
     function changeLanguage() {
         currentLanguage = document.getElementById("language-select").value;
         updateLanguage(currentLanguage);
-        analyzeName(); // Re-analyze and display in the new language immediately upon language change
+        analyzeName();
     }
 
     function updateLanguage(language) {
@@ -693,10 +746,8 @@
         document.querySelector('button').textContent = translations[language].calculateButton;
         document.querySelector('footer').textContent = translations[language].footer;
 
-        // Update placeholder and other text content as needed.
     }
 
-    // Initialize language on page load
     updateLanguage(currentLanguage);
 
 </script>
