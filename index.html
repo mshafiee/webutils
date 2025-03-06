@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>WebUtils - مجموعه‌ای از ابزارهای وب مفید</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="WebUtils: مجموعه‌ای از ابزارهای آنلاین و کاربردی برای توسعه‌دهندگان وب و کاربران عادی. شامل ابزارهای تحلیل ابجد حروف و بیشتر.">
+    <meta name="keywords" content="ابزارهای وب, توسعه وب, ابزار آنلاین, تحلیل ابجد, فارسی, انگلیسی, وب‌یوتیلیتیز">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400..700&family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif; /* Vazirmatn for body text - Persian and English */
+            direction: ltr; /* Default to LTR */
+            line-height: 1.8;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                max-width: 800px;
+                margin-left: auto;
+                margin-right: auto;
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+            font-family: 'Noto Naskh Arabic', serif; /* Noto Naskh for headings - Good for both languages */
+            font-weight: 700;
+        }
+
+        p {
+            margin-bottom: 20px;
+        }
+
+        .tool-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px; /* Reduced margin for multiple links */
+        }
+
+        .tool-link:hover {
+            background-color: #0056b3;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            color: #777;
+            font-size: 0.9em;
+        }
+
+        /* Language Selector Styling (similar to abjad tool) */
+        .lang-selector-container {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 100; /* Ensure it's on top */
+        }
+
+        .lang-selector {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            color: #333;
+            cursor: pointer;
+            font-size: 0.9em;
+            appearance: none; /* Remove default appearance for better styling */
+            -webkit-appearance: none; /* For Safari */
+            -moz-appearance: none; /* For Firefox */
+            background-image: url('data:image/svg+xml;utf8,<svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); /* Add dropdown arrow icon */
+            background-repeat: no-repeat;
+            background-position-x: right;
+            background-position-y: center;
+            padding-right: 25px; /* Space for arrow */
+        }
+
+        .lang-selector:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,.25);
+        }
+
+        .rtl {
+            direction: rtl;
+        }
+    </style>
+</head>
+<body>
+
+<div class=".lang-selector-container">
+    <select id="language-select" class="lang-selector" onchange="changeLanguage()">
+        <option value="en">English</option>
+        <option value="fa">فارسی</option>
+    </select>
+</div>
+
+<h1 id="page-heading">WebUtils</h1>
+
+<p id="page-description">
+    WebUtils is a collection of useful online tools for web developers and general users.
+    We provide various utilities to simplify web-related tasks.
+</p>
+
+<p id="tools-section-title">
+    Explore our tools:
+</p>
+
+<p style="text-align: center;">
+    <a href="abjad-analysis.html" class="tool-link" id="tool-link-abjad">
+        Abjad Analysis Tool
+    </a>
+    <!-- Add more tool links here in the same manner -->
+</p>
+
+<footer id="page-footer">
+    © 2025 Sarvestani. All rights reserved.
+</footer>
+
+<script>
+    let currentLanguage = document.querySelector('html').lang; // default language is 'en'
+
+    const translations = {
+        en: {
+            title: "WebUtils - Collection of Useful Web Tools",
+            heading: "WebUtils",
+            description: "WebUtils is a collection of useful online tools for general users. We provide various utilities to simplify web-related tasks.",
+            toolsSectionTitle: "Explore our tools:",
+            toolLinkAbjad: "Abjad Analysis Tool",
+            footer: "© 2025 Sarvestani. All rights reserved."
+        },
+        fa: {
+            title: "WebUtils - مجموعه‌ای از ابزارهای وب مفید",
+            heading: "WebUtils",
+            description: "WebUtils مجموعه‌ای از ابزارهای آنلاین و کاربردی برای کاربران عادی است. ما ابزارهای متنوعی برای ساده‌سازی وظایف مربوط به وب ارائه می‌دهیم.",
+            toolsSectionTitle: "ابزارهای ما را بررسی کنید:",
+            toolLinkAbjad: "ابزار تحلیل ابجد حروف",
+            footer: "© 2025 Sarvestani. تمامی حقوق محفوظ است."
+        }
+        // You can add Arabic (ar) translations here if needed in the future
+    };
+
+    function changeLanguage() {
+        currentLanguage = document.getElementById("language-select").value;
+        updateLanguage(currentLanguage);
+    }
+
+    function updateLanguage(language) {
+        document.querySelector('html').lang = language;
+        const isRTL = language === 'fa'; // Only Persian is RTL here
+        if (isRTL) {
+            document.body.classList.add('rtl'); // Add RTL class to body
+            document.body.style.direction = 'rtl';
+        } else {
+            document.body.classList.remove('rtl'); // Remove RTL class
+            document.body.style.direction = 'ltr';
+        }
+
+
+        document.title = translations[language].title;
+        document.getElementById('page-heading').textContent = translations[language].heading;
+        document.getElementById('page-description').textContent = translations[language].description;
+        document.getElementById('tools-section-title').textContent = translations[language].toolsSectionTitle;
+        document.getElementById('tool-link-abjad').textContent = translations[language].toolLinkAbjad;
+        document.getElementById('page-footer').textContent = translations[language].footer;
+    }
+
+    // Initialize language on page load
+    updateLanguage(currentLanguage);
+
+</script>
+</body>
+</html>

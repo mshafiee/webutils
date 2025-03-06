@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <title>تحلیل ابجد حروف</title>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400..700&family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif; /* Apply Vazirmatn font to body */
+            direction: rtl;
+            line-height: 1.8;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        /* Restrict width on larger screens using media query */
+        @media (min-width: 768px) {
+            body {
+                max-width: 800px;
+                margin-left: auto;
+                margin-right: auto;
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+
+            .lang-selector-container {
+                right: auto; /* Reset right position */
+                left: 10px;   /* Move to top-left on larger screens */
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+            font-family: 'Noto Naskh Arabic', serif; /* Apply Noto Naskh Arabic to H1 */
+            font-weight: 700; /* Make H1 bold for Noto Naskh Arabic */
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: right; /* Default to right for Persian/Arabic, JS will change if needed */
+            box-sizing: border-box;
+            font-family: 'Vazirmatn', sans-serif; /* Apply Vazirmatn font to input box */
+        }
+
+        .ltr-input {
+            text-align: left; /* Class for LTR input text alignment */
+        }
+
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            display: block;
+            margin: 0 auto 20px auto;
+            max-width: 300px;
+            font-family: 'Vazirmatn', sans-serif; /* Ensure button font matches body */
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #output {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none; /* Initially hidden */
+            margin-top: 20px; /* Add some top margin when visible */
+        }
+
+        .section-title {
+            color: #007bff;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            font-family: 'Noto Naskh Arabic', serif; /* Apply Noto Naskh Arabic to section titles */
+            font-weight: 500; /* Adjust font weight for section titles */
+        }
+
+        .letter-abjad, .planet-element, .dominant-result {
+            margin-bottom: 15px;
+        }
+
+        .letter-pair {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 5px;
+            border: 1px solid #eee;
+            border-radius: 3px;
+            background-color: #f9f9f9;
+        }
+
+        .abjad-values {
+            margin-bottom: 5px;
+        }
+
+        .planet-element-pairs {
+            margin-bottom: 5px;
+        }
+
+        .quality-pair {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 5px;
+            background-color: #f9f9f9;
+            border-radius: 3px;
+        }
+
+        .dominant-element-text {
+            font-weight: bold;
+            color: #28a745; /* Green to highlight success or dominant aspect */
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            color: #777;
+            font-size: 0.9em;
+        }
+
+        /* Language Selector Styling */
+        .lang-selector-container {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 100; /* Ensure it's on top */
+        }
+
+        .lang-selector {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            color: #333;
+            cursor: pointer;
+            font-size: 0.9em;
+            appearance: none; /* Remove default appearance for better styling */
+            -webkit-appearance: none; /* For Safari */
+            -moz-appearance: none; /* For Firefox */
+            background-image: url('data:image/svg+xml;utf8,<svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); /* Add dropdown arrow icon */
+            background-repeat: no-repeat;
+            background-position-x: right;
+            background-position-y: center;
+            padding-right: 25px; /* Space for arrow */
+        }
+
+        .lang-selector:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,.25);
+        }
+    </style>
+</head>
+<body>
+
+<div class=".lang-selector-container">
+    <select id="language-select" class="lang-selector" onchange="changeLanguage()">
+        <option value="fa">فارسی</option>
+        <option value="ar">العربية</option>
+        <option value="en">English</option>
+    </select>
+</div>
+
+<h1>تحلیل ابجد حروف</h1>
+<label for="nameInput">عبارت (فارسی/عربی) را وارد کنید:</label>
+<input type="text" id="nameInput" placeholder="عبارت را وارد کنید">
+<button onclick="analyzeName()">محاسبه</button>
+<div id="output"></div>
+
+<footer>
+    © 2025 Sarvestani. تمامی حقوق محفوظ است.
+</footer>
+
+<script>
+    const lang = document.querySelector('html').lang; // get default lang from html tag.
+    let currentLanguage = lang; // default language
+
+    const translations = {
+        en: {
+            title: "Abjad Letter Analysis",
+            heading: "Abjad Letter Analysis",
+            inputLabel: "Enter Phrase (Persian/Arabic):",
+            inputPlaceholder: "Enter your phrase",
+            calculateButton: "Calculate",
+            outputSections: {
+                abjadValues: "Abjad Values of Letters",
+                planetElement: "Planet and Element of Phrase",
+                analysisResult: "Analysis Result"
+            },
+            abjadTitles: {
+                major: "Major Abjad:",
+                minor: "Minor Abjad:",
+                zodiacSign: "Zodiac Sign:"
+            },
+            planetElementTitles: {
+                planet: "Planet",
+                element: "Element"
+            },
+            qualityTitles: {
+                dominantQualities: "Dominant Qualities:",
+                dominantElement: "Dominant Element:"
+            },
+            zodiacSigns: [
+                "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
+                "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
+            ],
+            planets: {
+                "Saturn": "Saturn",
+                "Jupiter": "Jupiter",
+                "Mars": "Mars",
+                "Sun": "Sun",
+                "Venus": "Venus",
+                "Mercury": "Mercury",
+                "Moon": "Moon"
+            },
+            elements: {
+                "Air": "Air",
+                "Fire": "Fire",
+                "Earth": "Earth",
+                "Water": "Water"
+            },
+            qualities: {
+                "Warm": "Warmth",
+                "Cold": "Coldness",
+                "Moist": "Moisture",
+                "Dry": "Dryness"
+            },
+            footer: "© 2025 Sarvestani. All rights reserved.",
+            inputEmptyError: "Please enter a phrase.",
+        },
+        fa: {
+            title: "تحلیل ابجد حروف",
+            heading: "تحلیل ابجد حروف",
+            inputLabel: "عبارت (فارسی/عربی) را وارد کنید:",
+            inputPlaceholder: "عبارت را وارد کنید",
+            calculateButton: "محاسبه",
+            outputSections: {
+                abjadValues: "ارزش ابجدی حروف",
+                planetElement: "سیاره و عنصر عبارت",
+                analysisResult: "نتیجه تحلیل"
+            },
+            abjadTitles: {
+                major: "ابجد کبیر:",
+                minor: "ابجد صغیر:",
+                zodiacSign: "طالع نام:"
+            },
+            planetElementTitles: {
+                planet: "سیاره",
+                element: "عنصر"
+            },
+            qualityTitles: {
+                dominantQualities: "کیفیت های غالب:",
+                dominantElement: "عنصر غالب:"
+            },
+            zodiacSigns: [
+                "حَمَل", "ثَور", "جَوزا", "سَرَطان", "اَسَد", "سُنبُله",
+                "میزان", "عَقرَب", "قَوس", "جَدْی", "دَلو", "حوت"
+            ],
+            planets: {
+                "Saturn": "زحل",
+                "Jupiter": "مشتری",
+                "Mars": "مریخ",
+                "Sun": "شمس",
+                "Venus": "زهره",
+                "Mercury": "عطارد",
+                "Moon": "قمر"
+            },
+            elements: {
+                "Air": "باد",
+                "Fire": "آتش",
+                "Earth": "خاک",
+                "Water": "آب"
+            },
+            qualities: {
+                "Warm": "حرارت",
+                "Cold": "برودت",
+                "Moist": "رطوبت",
+                "Dry": "یبوست"
+            },
+            footer: "© 2025 Sarvestani. تمامی حقوق محفوظ است.",
+            inputEmptyError: "لطفاً یک حروف وارد کنید.",
+        },
+        ar: {
+            title: "تحليل الأبجدية للحروف",
+            heading: "تحليل الأبجدية للحروف",
+            inputLabel: "أدخل العبارة (فارسي / عربي):",
+            inputPlaceholder: "أدخل عبارتك",
+            calculateButton: "حساب",
+            outputSections: {
+                abjadValues: "قيم الأبجدية للحروف",
+                planetElement: "الكوكب والعنصر للعبارة",
+                analysisResult: "نتيجة التحليل"
+            },
+            abjadTitles: {
+                major: "الأبجد الكبير:",
+                minor: "الأبجد الصغير:",
+                zodiacSign: "برج الطالع:"
+            },
+            planetElementTitles: {
+                planet: "الكوكب",
+                element: "العنصر"
+            },
+            qualityTitles: {
+                dominantQualities: "الصفات السائدة:",
+                dominantElement: "العنصر السائد:"
+            },
+            zodiacSigns: [
+                "الحمل", "الثور", "الجوزاء", "السرطان", "الأسد", "العذراء",
+                "الميزان", "العقرب", "القوس", "الجدي", "الدلو", "الحوت"
+            ],
+            planets: {
+                "Saturn": "زحل",
+                "Jupiter": "المشتري",
+                "Mars": "المريخ",
+                "Sun": "الشمس",
+                "Venus": "الزهرة",
+                "Mercury": "عطارد",
+                "Moon": "القمر"
+            },
+            elements: {
+                "Air": "هواء",
+                "Fire": "نار",
+                "Earth": "أرض",
+                "Water": "ماء"
+            },
+            qualities: {
+                "Warm": "حرارة",
+                "Cold": "برودة",
+                "Moist": "رطوبة",
+                "Dry": "جفاف"
+            },
+            footer: "© 2025 Sarvestani. جميع الحقوق محفوظة.",
+            inputEmptyError: "الرجاء إدخال عبارة.",
+        }
+    };
+
+    const Letters = {
+        'ا': { Element: "Fire", Planet: "Saturn", MajorAbjad: 1, MinorAbjad: 1 },
+        'آ': { Element: "Fire", Planet: "Saturn", MajorAbjad: 1, MinorAbjad: 1 },
+        'ء': { Element: "Fire", Planet: "Saturn", MajorAbjad: 1, MinorAbjad: 1 },
+        'أ': { Element: "Fire", Planet: "Saturn", MajorAbjad: 1, MinorAbjad: 1 },
+        'ب': { Element: "Air", Planet: "Saturn", MajorAbjad: 2, MinorAbjad: 2 },
+        'پ': { Element: "Air", Planet: "Saturn", MajorAbjad: 2, MinorAbjad: 2 },
+        'ج': { Element: "Water", Planet: "Saturn", MajorAbjad: 3, MinorAbjad: 3 },
+        'گ': { Element: "Water", Planet: "Saturn", MajorAbjad: 3, MinorAbjad: 3 },
+        'د': { Element: "Earth", Planet: "Saturn", MajorAbjad: 4, MinorAbjad: 4 },
+        'ه': { Element: "Fire", Planet: "Jupiter", MajorAbjad: 5, MinorAbjad: 5 },
+        'و': { Element: "Air", Planet: "Jupiter", MajorAbjad: 6, MinorAbjad: 6 },
+        'ؤ': { Element: "Air", Planet: "Jupiter", MajorAbjad: 6, MinorAbjad: 6 },
+        'ز': { Element: "Water", Planet: "Jupiter", MajorAbjad: 7, MinorAbjad: 7 },
+        'ژ': { Element: "Water", Planet: "Jupiter", MajorAbjad: 7, MinorAbjad: 7 },
+        'ح': { Element: "Earth", Planet: "Jupiter", MajorAbjad: 8, MinorAbjad: 8 },
+        'ط': { Element: "Fire", Planet: "Mars", MajorAbjad: 9, MinorAbjad: 9 },
+        'ی': { Element: "Air", Planet: "Mars", MajorAbjad: 10, MinorAbjad: 10 },
+        'ئ': { Element: "Air", Planet: "Mars", MajorAbjad: 10, MinorAbjad: 10 },
+        'ک': { Element: "Water", Planet: "Mars", MajorAbjad: 20, MinorAbjad: 8 },
+        'ل': { Element: "Earth", Planet: "Mars", MajorAbjad: 30, MinorAbjad: 6 },
+        'م': { Element: "Fire", Planet: "Sun", MajorAbjad: 40, MinorAbjad: 4 },
+        'ن': { Element: "Air", Planet: "Sun", MajorAbjad: 50, MinorAbjad: 2 },
+        'س': { Element: "Water", Planet: "Sun", MajorAbjad: 60, MinorAbjad: 0 },
+        'ع': { Element: "Earth", Planet: "Sun", MajorAbjad: 70, MinorAbjad: 10 },
+        'ف': { Element: "Fire", Planet: "Venus", MajorAbjad: 80, MinorAbjad: 8 },
+        'ص': { Element: "Air", Planet: "Venus", MajorAbjad: 90, MinorAbjad: 6 },
+        'ق': { Element: "Water", Planet: "Venus", MajorAbjad: 100, MinorAbjad: 4 },
+        'ر': { Element: "Earth", Planet: "Venus", MajorAbjad: 200, MinorAbjad: 8 },
+        'ش': { Element: "Fire", Planet: "Mercury", MajorAbjad: 300, MinorAbjad: 0 },
+        'چ': { Element: "Fire", Planet: "Mercury", MajorAbjad: 300, MinorAbjad: 0 },
+        'ت': { Element: "Air", Planet: "Mercury", MajorAbjad: 400, MinorAbjad: 4 },
+        'ة': { Element: "Air", Planet: "Mercury", MajorAbjad: 400, MinorAbjad: 4 },
+        'ث': { Element: "Water", Planet: "Mercury", MajorAbjad: 500, MinorAbjad: 8 },
+        'خ': { Element: "Earth", Planet: "Mercury", MajorAbjad: 600, MinorAbjad: 0 },
+        'ذ': { Element: "Fire", Planet: "Moon", MajorAbjad: 700, MinorAbjad: 4 },
+        'ض': { Element: "Air", Planet: "Moon", MajorAbjad: 800, MinorAbjad: 8 },
+        'ظ': { Element: "Water", Planet: "Moon", MajorAbjad: 900, MinorAbjad: 0 },
+        'غ': { Element: "Earth", Planet: "Moon", MajorAbjad: 1000, MinorAbjad: 4 },
+        // English Letters (basic example, extend as needed - Abjad values can be culturally specific for English)
+        'a': { Element: "Fire", Planet: "Saturn", MajorAbjad: 1, MinorAbjad: 1 },
+        'b': { Element: "Air", Planet: "Saturn", MajorAbjad: 2, MinorAbjad: 2 },
+        'c': { Element: "Water", Planet: "Saturn", MajorAbjad: 3, MinorAbjad: 3 },
+        'd': { Element: "Earth", Planet: "Saturn", MajorAbjad: 4, MinorAbjad: 4 },
+        'e': { Element: "Fire", Planet: "Jupiter", MajorAbjad: 5, MinorAbjad: 5 },
+        'f': { Element: "Air", Planet: "Jupiter", MajorAbjad: 6, MinorAbjad: 6 },
+        'g': { Element: "Water", Planet: "Jupiter", MajorAbjad: 7, MinorAbjad: 7 },
+        'h': { Element: "Earth", Planet: "Jupiter", MajorAbjad: 8, MinorAbjad: 8 },
+        'i': { Element: "Fire", Planet: "Mars", MajorAbjad: 9, MinorAbjad: 9 },
+        'j': { Element: "Air", Planet: "Mars", MajorAbjad: 10, MinorAbjad: 10 },
+        'k': { Element: "Water", Planet: "Mars", MajorAbjad: 20, MinorAbjad: 8 },
+        'l': { Element: "Earth", Planet: "Mars", MajorAbjad: 30, MinorAbjad: 6 },
+        'm': { Element: "Fire", Planet: "Sun", MajorAbjad: 40, MinorAbjad: 4 },
+        'n': { Element: "Air", Planet: "Sun", MajorAbjad: 50, MinorAbjad: 2 },
+        'o': { Element: "Water", Planet: "Sun", MajorAbjad: 60, MinorAbjad: 0 },
+        'p': { Element: "Earth", Planet: "Sun", MajorAbjad: 70, MinorAbjad: 10 },
+        'q': { Element: "Fire", Planet: "Venus", MajorAbjad: 80, MinorAbjad: 8 },
+        'r': { Element: "Air", Planet: "Venus", MajorAbjad: 90, MinorAbjad: 6 },
+        's': { Element: "Water", Planet: "Venus", MajorAbjad: 100, MinorAbjad: 4 },
+        't': { Element: "Earth", Planet: "Venus", MajorAbjad: 200, MinorAbjad: 8 },
+        'u': { Element: "Fire", Planet: "Mercury", MajorAbjad: 300, MinorAbjad: 0 },
+        'v': { Element: "Fire", Planet: "Mercury", MajorAbjad: 300, MinorAbjad: 0 },
+        'w': { Element: "Air", Planet: "Mercury", MajorAbjad: 400, MinorAbjad: 4 },
+        'x': { Element: "Air", Planet: "Mercury", MajorAbjad: 400, MinorAbjad: 4 },
+        'y': { Element: "Water", Planet: "Mercury", MajorAbjad: 500, MinorAbjad: 8 },
+        'z': { Element: "Earth", Planet: "Mercury", MajorAbjad: 600, MinorAbjad: 0 },
+        ' ': { Element: "NoElement", Planet: "NoPlanet", MajorAbjad: 0, MinorAbjad: 0} // Handling space for English inputs
+
+    };
+
+    const ElementsComposition = {
+        "Air": ["Warm", "Moist"],
+        "Fire": ["Warm", "Dry"],
+        "Earth": ["Cold", "Dry"],
+        "Water": ["Cold", "Moist"],
+    };
+
+
+    function getLocalizedPlanets(language) {
+        const planetKeys = Object.keys(translations[language].planets);
+        const planetValues = planetKeys.reduce((obj, key) => {
+            obj[key] = translations[language].planets[key];
+            return obj;
+        }, {});
+        return planetValues;
+    }
+
+    function getLocalizedElements(language) {
+        const elementKeys = Object.keys(translations[language].elements);
+        const elementValues = elementKeys.reduce((obj, key) => {
+            obj[key] = translations[language].elements[key];
+            return obj;
+        }, {});
+        return elementValues;
+    }
+
+    function getLocalizedQualities(language) {
+        const qualityKeys = Object.keys(translations[language].qualities);
+        const qualityValues = qualityKeys.reduce((obj, key) => {
+            obj[key] = translations[language].qualities[key];
+            return obj;
+        }, {});
+        return qualityValues;
+    }
+
+    function getLocalizedZodiacSigns(language) {
+        return translations[language].zodiacSigns;
+    }
+
+
+    function MajorAbjad(s) {
+        let majorAbjad = 0;
+        s = s.toLowerCase(); // Convert input to lowercase for English letters
+        for (let char of s) {
+            if (Letters[char]) {
+                majorAbjad += Letters[char].MajorAbjad;
+            }
+        }
+        return majorAbjad;
+    }
+
+    function MinorAbjad(s) {
+        let minorAbjad = 0;
+        s = s.toLowerCase(); // Convert input to lowercase for English letters
+        for (let char of s) {
+            if (Letters[char]) {
+                minorAbjad += Letters[char].MinorAbjad;
+            }
+        }
+        return minorAbjad;
+    }
+
+    function ZodiacSign(tale, language) {
+        const zodiacSignsLocalized = getLocalizedZodiacSigns(language);
+        if (tale === -1) {
+            tale = 11;
+        }
+        return zodiacSignsLocalized[tale];
+    }
+
+    function PlanetFactor(planet) {
+        const planetOrder = ["NoPlanet", "Saturn", "Jupiter", "Mars", "Sun", "Venus", "Mercury", "Moon"];
+        const planetIndex = planetOrder.indexOf(planet);
+        if (planetIndex === -1 || planetIndex === 0) {
+            return 0;
+        }
+        return 8 - planetIndex;
+    }
+
+    function WordElements(w) {
+        const wordElements = {};
+        w = w.toLowerCase(); // Convert input to lowercase for English letters
+        for (let char of w) {
+            if (Letters[char]) {
+                const element = Letters[char].Element;
+                const planet = Letters[char].Planet;
+                const factor = PlanetFactor(planet);
+                wordElements[element] = (wordElements[element] || 0) + factor;
+            }
+        }
+        return wordElements;
+    }
+
+    function SearchQuality(a, q) {
+        return a.includes(q);
+    }
+
+    function DominantElement(w) {
+        const qualities = {};
+        const wordElements = WordElements(w);
+
+        for (const element in wordElements) {
+            const degree = wordElements[element];
+            const elementQualities = ElementsComposition[element];
+            if (elementQualities) {
+                elementQualities.forEach(q => {
+                    qualities[q] = (qualities[q] || 0) + degree;
+                });
+            }
+        }
+
+        let dw = (qualities["Warm"] || 0) - (qualities["Cold"] || 0);
+        if (dw === 0) {
+            delete qualities["Warm"];
+            delete qualities["Cold"];
+        } else if (dw > 0) {
+            delete qualities["Cold"];
+            qualities["Warm"] = dw;
+        } else {
+            delete qualities["Warm"];
+            qualities["Cold"] = -dw;
+        }
+
+        let dm = (qualities["Moist"] || 0) - (qualities["Dry"] || 0);
+        if (dm === 0) {
+            delete qualities["Moist"];
+            delete qualities["Dry"];
+        } else if (dm > 0) {
+            delete qualities["Dry"];
+            qualities["Moist"] = dm;
+        } else {
+            delete qualities["Moist"];
+            qualities["Dry"] = -dm;
+        }
+
+        let dominantElement = "NoElement";
+        for (const element in ElementsComposition) {
+            const qSlice = ElementsComposition[element];
+            let b = true;
+            for (const q in qualities) {
+                b = b && SearchQuality(qSlice, q);
+            }
+            if (b && Object.keys(qualities).length !== 1) {
+                dominantElement = element;
+                break;
+            }
+        }
+
+        if (dominantElement === "NoElement") {
+            if (Object.keys(qualities).length === 1) {
+                if (qualities["Dry"]) {
+                    dominantElement = "Earth";
+                } else if (qualities["Moist"]) {
+                    dominantElement = "Air";
+                } else if (qualities["Cold"]) {
+                    dominantElement = "Water";
+                } else if (qualities["Warm"]) {
+                    dominantElement = "Fire";
+                }
+            }
+        }
+        return {
+            Element: dominantElement,
+            Qualities: qualities,
+        };
+    }
+
+    function NameAnalysis(name, language) {
+        name = name.replace(/\s/g, '');
+        let outputHTML = '';
+        const localizedPlanets = getLocalizedPlanets(language);
+        const localizedElements = getLocalizedElements(language);
+        const localizedQualities = getLocalizedQualities(language);
+
+        outputHTML += '<div class="letter-abjad">';
+        outputHTML += `<h3 class="section-title">${translations[language].outputSections.abjadValues}</h3>`;
+        outputHTML += '<div class="letter-values">';
+        for (let char of name) {
+            if (Letters[char]) {
+                outputHTML += `<span class="letter-pair"><span>${char}</span>=<span style="font-weight:bold;">${Letters[char].MajorAbjad}</span></span>`;
+            }
+        }
+        outputHTML += '</div>';
+        const majorAbjadValue = MajorAbjad(name);
+        const minorAbjadValue = MinorAbjad(name);
+        outputHTML += `<p class="abjad-values"><strong>${translations[language].abjadTitles.major}</strong> ${majorAbjadValue}، <strong>${translations[language].abjadTitles.minor}</strong> ${minorAbjadValue}</p>`;
+        let tale = Math.floor(majorAbjadValue % 12) - 1;
+        if (tale < 0) {
+            tale = 11;
+        }
+        outputHTML += `<p class="zodiac-sign"><strong>${translations[language].abjadTitles.zodiacSign}</strong> ${ZodiacSign(tale, language)}</p>`;
+        outputHTML += '</div>';
+
+        outputHTML += '<div class="planet-element">';
+        outputHTML += `<h3 class="section-title">${translations[language].outputSections.planetElement}</h3>`;
+        outputHTML += '<div class="planet-element-pairs">';
+        for (let char of name) {
+            if (Letters[char]) {
+                outputHTML += `<span class="letter-pair"><span>${char}</span>=[<span style="color: #007bff;">${localizedPlanets[Letters[char].Planet]}</span>(<span style="font-weight:bold;">${PlanetFactor(Letters[char].Planet)}</span>)-<span style="color: #dc3545;">${localizedElements[Letters[char].Element]}</span>]</span>`;
+            }
+        }
+        outputHTML += '</div>';
+        outputHTML += '</div>';
+
+        outputHTML += '<div class="dominant-result">';
+        outputHTML += `<h3 class="section-title">${translations[language].outputSections.analysisResult}</h3>`;
+        outputHTML += `<p><strong>${translations[language].qualityTitles.dominantQualities}</strong></p>`;
+        outputHTML += '<div class="quality-values">';
+        for (const quality in DominantElement(name).Qualities) {
+            outputHTML += `<span class="quality-pair">${localizedQualities[quality]}=<span style="font-weight:bold;">${DominantElement(name).Qualities[quality]}</span></span>`;
+        }
+        outputHTML += '</div>';
+        outputHTML += `<p><strong>${translations[language].qualityTitles.dominantElement}</strong> <span class="dominant-element-text">${localizedElements[DominantElement(name).Element]}</span></p>`;
+        outputHTML += '</div>';
+
+        return outputHTML;
+    }
+
+    function analyzeName() {
+        const name = document.getElementById("nameInput").value;
+        if (!name) {
+            document.getElementById("output").innerHTML = translations[currentLanguage].inputEmptyError;
+            document.getElementById("output").style.display = 'none'; // Hide output if no name
+            return;
+        }
+        const analysisResult = NameAnalysis(name, currentLanguage);
+        document.getElementById("output").innerHTML = analysisResult;
+        document.getElementById("output").style.display = 'block'; // Show output after analysis
+    }
+
+    document.getElementById("nameInput").addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Prevent form submission if inside a form
+            analyzeName();
+        }
+    });
+
+
+    function changeLanguage() {
+        currentLanguage = document.getElementById("language-select").value;
+        updateLanguage(currentLanguage);
+        analyzeName(); // Re-analyze and display in the new language immediately upon language change
+    }
+
+    function updateLanguage(language) {
+        document.querySelector('html').lang = language;
+        const isRTL = language === 'fa' || language === 'ar';
+        document.querySelector('html').dir = isRTL ? 'rtl' : 'ltr';
+        document.body.style.direction = isRTL ? 'rtl' : 'ltr';
+        const inputElement = document.getElementById("nameInput");
+        if (inputElement) {
+            inputElement.placeholder = translations[language].inputPlaceholder;
+            if (isRTL) {
+                inputElement.classList.remove('ltr-input');
+            } else {
+                inputElement.classList.add('ltr-input');
+            }
+        }
+
+
+        document.title = translations[language].title;
+        document.querySelector('h1').textContent = translations[language].heading;
+        document.querySelector('label[for="nameInput"]').textContent = translations[language].inputLabel;
+        document.querySelector('button').textContent = translations[language].calculateButton;
+        document.querySelector('footer').textContent = translations[language].footer;
+
+        // Update placeholder and other text content as needed.
+    }
+
+    // Initialize language on page load
+    updateLanguage(currentLanguage);
+
+</script>
+</body>
+</html>
