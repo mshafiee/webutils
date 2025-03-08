@@ -129,6 +129,7 @@
     <select id="language-select" class="lang-selector" onchange="changeLanguage()">
         <option value="en">English</option>
         <option value="fa">فارسی</option>
+        <option value="ar">العربية</option>
     </select>
 </div>
 
@@ -147,6 +148,9 @@
     <a href="abjad-analysis.html" class="tool-link" id="tool-link-abjad">
         Abjad Analysis Tool
     </a>
+    <a href="magical-table.html" class="tool-link" id="tool-link-magical-table">
+        Magic Square Generator
+    </a>
     <!-- Add more tool links here in the same manner -->
 </p>
 
@@ -164,6 +168,7 @@
             description: "WebUtils is a collection of useful online tools for general users. We provide various utilities to simplify web-related tasks.",
             toolsSectionTitle: "Explore our tools:",
             toolLinkAbjad: "Abjad Analysis Tool",
+            toolLinkMagicalTable: "Magic Square Generator",
             footer: "© 2025 Sarvestani. All rights reserved."
         },
         fa: {
@@ -172,7 +177,17 @@
             description: "WebUtils مجموعه‌ای از ابزارهای آنلاین و کاربردی برای کاربران عادی است. ما ابزارهای متنوعی برای ساده‌سازی وظایف مربوط به وب ارائه می‌دهیم.",
             toolsSectionTitle: "ابزارهای ما را بررسی کنید:",
             toolLinkAbjad: "ابزار تحلیل ابجد حروف",
+            toolLinkMagicalTable: "ابزار تولید جدول وفق",
             footer: "© 2025 Sarvestani. تمامی حقوق محفوظ است."
+        },
+        ar: {
+            title: "WebUtils - مجموعة من أدوات الويب المفيدة",
+            heading: "WebUtils",
+            description: "WebUtils عبارة عن مجموعة من الأدوات المفيدة عبر الإنترنت للمستخدمين العاديين. نحن نقدم العديد من الأدوات المساعدة لتبسيط المهام المتعلقة بالويب.",
+            toolsSectionTitle: "اكتشف أدواتنا:",
+            toolLinkAbjad: "أداة تحليل الأبجدية",
+            toolLinkMagicalTable: "مولد المربع المتوافق",
+            footer: "© 2025 Sarvestani. جميع الحقوق محفوظة."
         }
         // You can add Arabic (ar) translations here if needed in the future
     };
@@ -184,7 +199,7 @@
 
     function updateLanguage(language) {
         document.querySelector('html').lang = language;
-        const isRTL = language === 'fa';
+        const isRTL = language === 'fa' || language === 'ar';
         if (isRTL) {
             document.body.classList.add('rtl'); // Add 'rtl' class to body for direction
             document.body.style.direction = 'rtl'; // Set direction style for RTL
@@ -198,6 +213,7 @@
         document.getElementById('page-description').textContent = translations[language].description;
         document.getElementById('tools-section-title').textContent = translations[language].toolsSectionTitle;
         document.getElementById('tool-link-abjad').textContent = translations[language].toolLinkAbjad;
+        document.getElementById('tool-link-magical-table').textContent = translations[language].toolLinkMagicalTable;
         document.getElementById('page-footer').textContent = translations[language].footer;
     }
 

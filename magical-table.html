@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ابزار تولید جدول وفق</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400..700&family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        /* Base Styles (Mobile First) - Modified Select and Input Styles */
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            direction: rtl;
+            line-height: 1.6;
+            margin: 15px;
+            background-color: #f8f8f8;
+            color: #444;
+            font-size: 15px;
+        }
+        h1 {
+            text-align: center;
+            color: #007bff;
+            font-family: 'Noto Naskh Arabic', serif;
+            font-weight: 700;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #555;
+            font-size: 0.95em;
+        }
+        input[type="text"],
+        input[type="number"],
+        select {
+            padding: 10px; /* Keep padding consistent */
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-family: 'Vazirmatn', sans-serif;
+            width: 100%;
+            margin-bottom: 12px;
+            background-color: white;
+            font-size: 1em; /* Ensure font-size is explicitly the same */
+            line-height: 1.5; /* Add line-height for vertical alignment consistency */
+            height: auto; /* Reset any default height if set */
+            -webkit-appearance: none; /* Ensure consistent appearance across browsers */
+            -moz-appearance: none;
+            appearance: none;
+        }
+        select {
+            background-image: url('data:image/svg+xml;utf8,<svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+            background-repeat: no-repeat;
+            background-position-x: right 8px;
+            background-position-y: center;
+            padding-right: 25px;
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,.25);
+        }
+        .ltr-input {
+            text-align: left;
+        }
+        .ltr-select {
+            text-align: left;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-family: 'Vazirmatn', sans-serif;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            background-color: white;
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            min-height: 40px;
+            display: none;
+            border: 1px solid #eee;
+        }
+        .section-title {
+            color: #007bff;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+            font-family: 'Noto Naskh Arabic', serif;
+            font-weight: 500;
+            font-size: 1.3em;
+        }
+        /* Magic Table Generator Additional Styles */
+        table {
+            border-collapse: collapse;
+            margin: 15px auto;
+            max-width: 100%;
+            width: auto;
+        }
+        table, th, td {
+            border: 1px solid #bbb;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+            min-width: 40px;
+            height: 40px;
+        }
+        .highlight {
+            background-color: rgba(255, 255, 0, 0.3);
+        }
+        .index {
+            color: red;
+            font-size: smaller;
+            vertical-align: super;
+            padding-left: 3px;
+            margin-right: -3px;
+            margin-top: -2px;
+        }
+        /* Language Selector Styling */
+        .lang-selector-container {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+        }
+        .lang-selector {
+            padding: 8px 14px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background-color: white;
+            color: #555;
+            cursor: pointer;
+            font-size: 0.9em;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+            background-repeat: no-repeat;
+            background-position-x: right 8px;
+            background-position-y: center;
+            padding-right: 25px;
+        }
+        .lang-selector:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,.25);
+        }
+        .lang-selector-ltr {
+            text-align: left;
+        }
+
+        /* Form Container */
+        .form-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+
+        /* Input Row - Vertical layout on mobile by default */
+        .input-row {
+            margin-bottom: 15px;
+        }
+        .input-row label {
+            margin-right: 0;
+        }
+
+        /* Buttons Row - Stacked buttons on mobile */
+        .buttons-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .buttons-row button {
+            flex-grow: 1;
+            max-width: none;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 15px 0;
+            margin-top: 30px;
+            border-top: 1px solid #ddd;
+            color: #888;
+            font-size: 0.85em;
+        }
+
+        /* Media query for larger screens (tablets and desktops) */
+        @media (min-width: 768px) {
+            body {
+                max-width: 900px;
+                margin: 30px auto;
+                padding: 0 30px;
+                font-size: 16px;
+                line-height: 1.7;
+            }
+            h1 {
+                font-size: 2.7em;
+                margin-bottom: 25px;
+            }
+            label {
+                font-size: 1em;
+                margin-bottom: 8px;
+            }
+            input[type="text"],
+            input[type="number"],
+            select {
+                padding: 12px;
+                margin-bottom: 15px;
+                border-radius: 8px;
+                font-size: 1.1em;
+            }
+            button {
+                font-size: 1em;
+                padding: 12px 24px;
+                border-radius: 8px;
+            }
+            #result {
+                padding: 20px;
+                margin-top: 25px;
+                border-radius: 8px;
+                box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+                min-height: 60px;
+            }
+            .section-title {
+                font-size: 1.5em;
+                padding-bottom: 8px;
+                margin-bottom: 15px;
+            }
+            table {
+                margin: 20px auto;
+            }
+            th, td {
+                padding: 10px;
+                min-width: 40px;
+                height: 40px;
+                font-size: 1em;
+            }
+            .index {
+                font-size: smaller;
+                padding-left: 5px;
+                margin-right: -4px;
+            }
+            .lang-selector-container {
+                position: absolute;
+                top: 20px;
+                left: 20px;
+            }
+            .lang-selector {
+                padding: 10px 16px;
+                border-radius: 8px;
+                font-size: 0.95em;
+                background-image: url('data:image/svg+xml;utf8,<svg fill="currentColor" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+                background-position-x: right 10px;
+                padding-right: 30px;
+            }
+            .form-container {
+                padding: 30px;
+                border-radius: 12px;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+                margin-bottom: 30px;
+            }
+            footer {
+                font-size: 0.9em;
+                padding: 20px 0;
+                margin-top: 40px;
+            }
+            .input-row {
+                display: flex;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+            .input-row label {
+                margin-bottom: 0;
+                margin-right: 15px;
+                width: 150px;
+                text-align: right;
+                flex-shrink: 0;
+            }
+            input[type="text"],
+            input[type="number"],
+            select {
+                margin-bottom: 0;
+                margin-right: 0;
+            }
+            .buttons-row {
+                flex-direction: row;
+                justify-content: center;
+                gap: 15px;
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Language Selector -->
+<div class="lang-selector-container">
+    <select id="language-select" class="lang-selector" onchange="changeLanguage()">
+        <option value="fa">فارسی</option>
+        <option value="ar">العربية</option>
+        <option value="en">English</option>
+    </select>
+</div>
+
+<!-- Page Title -->
+<h1 id="title">ابزار تولید جدول وفق</h1>
+
+<div class="form-container">
+    <!-- Magic Table Generator Form -->
+    <div class="input-row">
+        <label id="labelMagicalNumber" for="magicalNumber">عدد وفق را وارد کنید:</label>
+        <input type="number" id="magicalNumber" placeholder="به طور مثال: 110" required>
+    </div>
+
+    <div class="input-row">
+        <label id="labelOrderType" for="orderType">نوع ترتیب را وارد کنید:</label>
+        <select id="orderType" class="order-type-select">
+            <option value="water" id="labelWater">آب</option>
+            <option value="fire" id="labelFire">آتش</option>
+            <option value="air" id="labelAir">باد</option>
+            <option value="earth" id="labelEarth">خاک</option>
+        </select>
+    </div>
+
+    <div class="buttons-row">
+        <button id="generateButton" onclick="generateMagicSquare()">تولید</button>
+        <button id="clearButton" onclick="clearResults()">پاک کردن</button>
+    </div>
+</div>
+
+
+<div id="result" style="display: none;"></div>
+
+<footer>
+    © 2025 Sarvestani. تمامی حقوق محفوظ است.
+</footer>
+
+<script>
+    // Translations for the Magic Table Generator
+    const translations = {
+        en: {
+            title: 'Magic Square Generator',
+            labelMagicalNumber: 'Enter magical number:',
+            labelOrderType: 'Enter order type:',
+            labelFire: 'Fire',
+            labelEarth: 'Earth',
+            labelWater: 'Water',
+            labelAir: 'Air',
+            generateButton: 'Generate',
+            clearButton: 'Clear',
+            selectLanguage: 'Select Language:',
+            magicSquareTrue: 'The table is a magic square with a magical number of',
+            magicSquareFalse: 'The table is not a magic square with a magical number of',
+            quotientText: 'Quotient (first cell):',
+            remainingNumberText: 'Remaining number:',
+            cellIncreasedText: 'Cell increased by 1:',
+            direction: 'ltr'
+        },
+        fa: {
+            title: 'ابزار تولید جدول وفق',
+            labelMagicalNumber: 'عدد وفق را وارد کنید:',
+            labelOrderType: 'نوع ترتیب را وارد کنید:',
+            labelFire: 'آتش',
+            labelEarth: 'خاک',
+            labelWater: 'آب',
+            labelAir: 'باد',
+            generateButton: 'تولید',
+            clearButton: 'پاک کردن',
+            selectLanguage: 'انتخاب زبان:',
+            magicSquareTrue: 'جدول وفق دارد:',
+            magicSquareFalse: 'جدول وفق ندارد:',
+            quotientText: 'خارج قسمت (اولین خانه):',
+            remainingNumberText: 'عدد باقی مانده:',
+            cellIncreasedText: 'خانه افزایش یافته به 1:',
+            direction: 'rtl'
+        },
+        ar: {
+            title: 'مولد المربع المتوافق',
+            labelMagicalNumber: 'أدخل الرقم الوفق:',
+            labelOrderType: 'أدخل نوع الترتيب:',
+            labelFire: 'نار',
+            labelEarth: 'تراب',
+            labelWater: 'ماء',
+            labelAir: 'هواء',
+            generateButton: 'توليد',
+            clearButton: 'مسح',
+            selectLanguage: 'اختر اللغة:',
+            magicSquareTrue: 'الجدول متوافق:',
+            magicSquareFalse: 'الجدول ليس متوافق:',
+            quotientText: 'الناتج (الخانة الأولى):',
+            remainingNumberText: 'الرقم المتبقي:',
+            cellIncreasedText: 'الخانة التي زادت إلى اول:',
+            direction: 'rtl'
+        }
+    };
+
+    // Function to convert English numbers to Persian numbers
+    function toPersianNumber(num) {
+        const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+        return String(num).replace(/\d/g, digit => persianDigits[parseInt(digit)]);
+    }
+
+    // Function to convert English numbers to Arabic numbers
+    function toArabicNumber(num) {
+        const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+        return String(num).replace(/\d/g, digit => arabicDigits[parseInt(digit)]);
+    }
+
+    // Language change handler (updates all magic table generator texts)
+    function changeLanguage() {
+        const selectedLanguage = document.getElementById('language-select').value;
+        const languageSelectElement = document.getElementById('language-select');
+        const magicalNumberElement = document.getElementById('magicalNumber');
+        const orderTypeSelectElement = document.querySelector('.order-type-select');
+        const translation = translations[selectedLanguage] || translations['en'];
+
+        document.getElementById('title').textContent = translation.title;
+        document.getElementById('labelMagicalNumber').textContent = translation.labelMagicalNumber;
+        document.getElementById('labelOrderType').textContent = translation.labelOrderType;
+        document.getElementById('labelFire').textContent = translation.labelFire;
+        document.getElementById('labelEarth').textContent = translation.labelEarth;
+        document.getElementById('labelWater').textContent = translation.labelWater;
+        document.getElementById('labelAir').textContent = translation.labelAir;
+        document.getElementById('generateButton').textContent = translation.generateButton;
+        document.getElementById('clearButton').textContent = translation.clearButton;
+        // Update the language select's label if needed (here we assume the select is self-explanatory)
+
+        document.body.style.direction = translation.direction;
+
+        if (selectedLanguage === 'en') {
+            languageSelectElement.classList.add('lang-selector-ltr');
+            orderTypeSelectElement.classList.add('ltr-select');
+            magicalNumberElement.classList.add('ltr-input');
+            magicalNumberElement.placeholder = 'e.g. 110';
+        } else {
+            languageSelectElement.classList.remove('lang-selector-ltr');
+            orderTypeSelectElement.classList.remove('ltr-select');
+            magicalNumberElement.classList.remove('ltr-input');
+            magicalNumberElement.placeholder = 'به طور مثال: 110';
+
+        }
+    }
+
+    // Ensure the language is set on load
+    changeLanguage();
+
+    // Magic Square Generator Functions
+    function generateMagicSquare() {
+        const selectedLanguage = document.getElementById('language-select').value;
+        const translation = translations[selectedLanguage] || translations['en'];
+        const magicalNumber = parseInt(document.getElementById('magicalNumber').value);
+        const orderType = document.getElementById('orderType').value;
+
+        document.getElementById('result').style.display = 'block'; // show result div
+
+        if (!magicalNumber || !orderType) {
+            alert("Please enter a valid magical number and select order type ('fire', 'earth', 'water', or 'air').");
+            return;
+        }
+
+        const { table, quotient, remainder, cellAdjusted } = createTable(magicalNumber, orderType);
+        displayTableAnimated(table).then(() => {
+            let resultText = `${translation.quotientText} `;
+            let convertedQuotient = quotient;
+            if (selectedLanguage === 'fa') {
+                convertedQuotient = toPersianNumber(quotient);
+            } else if (selectedLanguage === 'ar') {
+                convertedQuotient = toArabicNumber(quotient);
+            }
+            resultText += `${convertedQuotient}<br>`;
+
+
+            if (remainder > 0) {
+                resultText += `${translation.remainingNumberText} `;
+                let convertedRemainder = remainder;
+                if (selectedLanguage === 'fa') {
+                    convertedRemainder = toPersianNumber(remainder);
+                } else if (selectedLanguage === 'ar') {
+                    convertedRemainder = toArabicNumber(remainder);
+                }
+                resultText += `${convertedRemainder}<br>`;
+
+
+                resultText += `${translation.cellIncreasedText} `;
+                let convertedCellAdjusted = cellAdjusted;
+                if (selectedLanguage === 'fa') {
+                    convertedCellAdjusted = toPersianNumber(cellAdjusted);
+                } else if (selectedLanguage === 'ar') {
+                    convertedCellAdjusted = toArabicNumber(cellAdjusted);
+                }
+                resultText += `${convertedCellAdjusted}<br>`;
+            }
+
+            const isMagicSquare = checkMagicSquare(table, magicalNumber);
+            resultText += isMagicSquare ?
+                `${translation.magicSquareTrue} ` :
+                `${translation.magicSquareFalse} `;
+
+            let convertedMagicalNumber = magicalNumber;
+            if (selectedLanguage === 'fa') {
+                convertedMagicalNumber = toPersianNumber(magicalNumber);
+            } else if (selectedLanguage === 'ar') {
+                convertedMagicalNumber = toArabicNumber(magicalNumber);
+            }
+            resultText += `${convertedMagicalNumber}`;
+
+
+            document.getElementById('result').innerHTML += resultText;
+        });
+    }
+
+    function clearResults() {
+        document.getElementById('result').innerHTML = '';
+        document.getElementById('result').style.display = 'none'; // hide result div
+    }
+
+    function createTable(magicalNumber, orderType) {
+        const quotient = Math.floor((magicalNumber - 30) / 4);
+        const remainder = (magicalNumber - 30) % 4;
+        const table = Array.from({ length: 16 }, (_, i) => quotient + i);
+        let cellAdjusted = null;
+
+        if (remainder === 1) {
+            for (let i = 12; i < 16; i++) table[i]++;
+            cellAdjusted = 13;
+        } else if (remainder === 2) {
+            for (let i = 8; i < 16; i++) table[i]++;
+            cellAdjusted = 9;
+        } else if (remainder === 3) {
+            for (let i = 4; i < 16; i++) table[i]++;
+            cellAdjusted = 5;
+        }
+
+        const fireOrder = [8, 11, 14, 1, 13, 2, 7, 12, 3, 16, 9, 6, 10, 5, 4, 15];
+        const earthOrder = [5, 4, 15, 10, 16, 9, 6, 3, 2, 7, 12, 13, 11, 14, 1, 8];
+        const waterOrder = [6, 9, 16, 3, 15, 4, 5, 10, 1, 14, 11, 8, 12, 7, 2, 13];
+        const airOrder = [10, 15, 4, 5, 8, 1, 14, 11, 13, 12, 7, 2, 3, 6, 9, 16];
+        let order;
+
+        switch (orderType) {
+            case 'fire':
+                order = fireOrder;
+                break;
+            case 'earth':
+                order = earthOrder;
+                break;
+            case 'water':
+                order = waterOrder;
+                break;
+            case 'air':
+                order = airOrder;
+                break;
+        }
+
+        const tableOrdered = Array.from({ length: 16 }, (_, i) => table[order[i] - 1]);
+        const table2d = Array.from({ length: 4 }, (_, i) => tableOrdered.slice(i * 4, i * 4 + 4));
+
+        return { table: table2d, quotient, remainder, cellAdjusted };
+    }
+
+    async function displayTableAnimated(table) {
+        const selectedLanguage = document.getElementById('language-select').value;
+        // Create table element
+        const tableElement = document.createElement('table');
+        tableElement.setAttribute('dir', 'ltr'); // ensure table is LTR
+        for (let i = 0; i < 4; i++) {
+            const tr = document.createElement('tr');
+            for (let j = 0; j < 4; j++) {
+                const td = document.createElement('td');
+                td.textContent = '';
+                tr.appendChild(td);
+            }
+            tableElement.appendChild(tr);
+        }
+        document.getElementById('result').appendChild(tableElement);
+
+        // Map cells and sort by value for animation order
+        const cellMapping = [];
+        for (let rowIndex = 0; rowIndex < 4; rowIndex++) {
+            for (let colIndex = 0; colIndex < 4; colIndex++) {
+                cellMapping.push({ value: table[rowIndex][colIndex], row: rowIndex, col: colIndex });
+            }
+        }
+        cellMapping.sort((a, b) => a.value - b.value);
+
+        for (let i = 0; i < cellMapping.length; i++) {
+            const cell = cellMapping[i];
+            const tableCell = tableElement.rows[cell.row].cells[cell.col];
+            tableCell.classList.add('highlight');
+            await new Promise(resolve => setTimeout(resolve, 200));
+            let cellValue = cell.value;
+            if (selectedLanguage === 'fa') {
+                cellValue = toPersianNumber(cell.value);
+            } else if (selectedLanguage === 'ar') {
+                cellValue = toArabicNumber(cell.value);
+            }
+            tableCell.innerHTML = `${cellValue}<sup class="index">${toEnglishNumberToArabicOrPersian(i + 1, selectedLanguage)}</sup>`;
+            tableCell.classList.remove('highlight');
+        }
+    }
+
+    function toEnglishNumberToArabicOrPersian(num, lang) {
+        if (lang === 'ar') {
+            return toArabicNumber(num);
+        } else if (lang === 'fa') {
+            return toPersianNumber(num);
+        }
+        return num; // Return English number if language is not ar or fa
+    }
+
+
+    function checkMagicSquare(table, magicalNumber) {
+        let allEqual = true;
+
+        // Check rows
+        for (let i = 0; i < 4; i++) {
+            const rowSum = table[i].reduce((acc, val) => acc + val, 0);
+            if (rowSum !== magicalNumber) {
+                allEqual = false;
+            }
+        }
+
+        // Check columns
+        for (let i = 0; i < 4; i++) {
+            const colSum = table.reduce((acc, row) => acc + row[i], 0);
+            if (colSum !== magicalNumber) {
+                allEqual = false;
+            }
+        }
+
+        // Check diagonals
+        const diag1Sum = table.reduce((acc, row, i) => acc + row[i], 0);
+        const diag2Sum = table.reduce((acc, row, i) => acc + row[3 - i], 0);
+        if (diag1Sum !== magicalNumber || diag2Sum !== magicalNumber) {
+            allEqual = false;
+        }
+
+        return allEqual;
+    }
+</script>
+</body>
+</html>
